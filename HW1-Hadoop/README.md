@@ -41,7 +41,7 @@
 ### Локальное тестирование маппера и редьюсера  
 
 Перед запуском скриптов на hadoop протестируем их локально:  
-`docker cp mean_mapper.py nodemanager1:/` Записываем исходные данные и скрипт маппера и редьюсера на контейнер с установленным python  
+`docker cp mean_mapper.py nodemanager1:/` Записываем исходные данные и скрипт на контейнер с установленным python  
 `docker exec -it nodemanager1 /bin/bash` Подключение к контейнеру  
 `cat AB_NYC_2019.csv | python3 mean_mapper.py | sort | python3 mean_reducer.py` Тест mapreduce для расчета среднего  
 
