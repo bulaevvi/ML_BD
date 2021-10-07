@@ -62,6 +62,6 @@ docker cp namenode:/out /out
 Как показывает сравнение, отличия наблюдаются только в десятом разряде после запятой
 
 
-Полезные ссылки:
+Полезные ссылки:  
 https://hadoop.apache.org/docs/stable/hadoop-streaming/HadoopStreaming.html
 https://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/
