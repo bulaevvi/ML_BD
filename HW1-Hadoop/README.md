@@ -60,3 +60,8 @@ docker cp namenode:/out /out
 
 Результаты сравнения значений, полученных в pandas и mapreduce, приведены в файле `comparison.txt`
 Как показывает сравнение, отличия наблюдаются только в десятом разряде после запятой
+
+
+Полезные ссылки:
+https://hadoop.apache.org/docs/stable/hadoop-streaming/HadoopStreaming.html
+https://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/
