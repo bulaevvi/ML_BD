@@ -32,9 +32,20 @@
 
 Результаты выполнения третьего блока приведены в папке **Block_3**
 
+### Установка python на nodemanager  
+
 Для начала на всех nodemanager вручную установил python:  
 `docker exec -it nodemanager1 /bin/bash` Подключение к контейнеру  
 `apt update && apt upgrade && apt-get install python3` Запуск команды установки  
+
+### Локальное тестирование маппера и редьюсера  
+
+Перед запуском скриптов на hadoop протестируем их локально:  
+`docker cp mean_mapper.py nodemanager1:/` Записываем исходные данные и скрипт маппера и редьюсера на контейнер с установленным python
+`docker exec -it nodemanager1 /bin/bash` Подключение к контейнеру
+`cat AB_NYC_2019.csv | python3 mean_mapper.py | sort | python3 mean_reducer.py` Тест mapreduce для расчета среднего
+
+### Загрузка данных на HDFS  
 
 Скачиваем исходные данные (файл AB_NYC_2019.csv.csv), скидываем в namenode и записываем в HDFS:  
 ```
@@ -42,15 +53,17 @@ docker cp AB_NYC_2019.csv namenode:/
 docker exec -it namenode /bin/bash
 hdfs dfs -put AB_NYC_2019.csv /
 ```
+Аналогичным образом переписываем скрипты на namenode
 
-Аналогичным образом переписываем исходные скрипты на namenode
+### Запуск скриптов на hadoop  
 
-
-Команды для запуска mapreduce для рассчета среднего и дисперсии соответственно:
+Команды запуска скриптов mapreduce на кластере Hadoop для рассчета среднего и дисперсии соответственно :
 ```
 mapred streaming -mapper "python3 mean_mapper.py" -file /mean_mapper.py -reducer "python3 mean_reducer.py" -file /mean_reducer.py -input /AB_NYC_2019.csv -output /out  
 mapred streaming -mapper "python3 var_mapper.py" -file /var_mapper.py -reducer "python3 var_reducer.py" -file /var_reducer.py -input /AB_NYC_2019.csv -output /out  
 ```
+
+### Анализ результатов
 
 Выгрузка результатов на локальный компьютер:
 ```
@@ -60,6 +73,7 @@ docker cp namenode:/out /out
 
 Результаты сравнения значений, полученных в pandas и mapreduce, приведены в файле `comparison.txt`
 Как показывает сравнение, отличия наблюдаются только в десятом разряде после запятой
+
 
 
 Полезные ссылки:  
