@@ -63,5 +63,5 @@ docker cp namenode:/out /out
 
 
 Полезные ссылки:  
-https://hadoop.apache.org/docs/stable/hadoop-streaming/HadoopStreaming.html
+https://hadoop.apache.org/docs/stable/hadoop-streaming/HadoopStreaming.html  
 https://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/
