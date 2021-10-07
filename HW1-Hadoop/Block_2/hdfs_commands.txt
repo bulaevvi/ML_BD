@@ -1,0 +1,72 @@
+Блок 2 часть 1.
+
+2.2.0.a. Подключение к контейнеру namenode
+docker exec -it namenode /bin/bash
+
+2.1.0.b. Просмотр содержимого папки HDFS
+hdfs dfs -ls /
+
+2.1.1. Создайте папку в корневой HDFS-папке
+hdfs dfs -mkdir /test_folder
+
+2.1.2. Создайте в созданной папке новую вложенную папку
+hdfs dfs -mkdir /test_folder/another_folder
+
+2.1.3.a. Что такое Trash в распределенной FS? 
+Этот такая папка, куда перемещаются объекты после удаления (по аналогии с корзиной в Windows). 
+Т.е. объекты не удаляются сразу, а хранятся в этой папке до очистки
+Команда hdfs dfs -rm <file> по сути отправляет удаляемый файл в Trash
+
+2.1.3.b. Как сделать так, чтобы файлы удалялись сразу, минуя “Trash”?
+Использовать команду удаления с опцией -skipTrash
+hdfs dfs -rm -skipTrash <path_to_file_to_delete>
+
+2.1.4. Создайте пустой файл в подпапке из пункта 2.1.2
+hadoop dfs -touchz /test_folder/another_folder/some_file.ext
+
+2.1.5. Удалите созданный файл
+hdfs dfs -rm -skipTrash /test_folder/another_folder/some_file.ext
+
+2.1.6. Удалите созданные папки (используем опцию рекурсивного удаления -r)
+hdfs dfs -rm -r /test_folder
+
+
+Блок 2 часть 2.
+
+2.2.0.a. Запись в контейнер файла с локального компа: docker cp <source_file_name> <comtainer_name>:<path_on_container>
+docker cp test_data.csv namenode:/
+
+2.2.0.b. Подключение к контейнеру namenode
+docker exec -it namenode /bin/bash
+
+2.2.1. Скопируйте любой файл в новую папку на HDFS
+hdfs dfs -put test_data.csv /folder1/
+
+2.2.2. Выведите содержимое HDFS-файла на экран
+hdfs dfs -cat /folder1/test_data.csv
+
+2.2.3. Выведите содержимое нескольких последних строчек HDFS-файла на экран
+hdfs dfs -tail /folder1/test_data.csv
+
+2.2.4. Выведите содержимое нескольких первых строчек HDFS-файла на экран
+hdfs dfs -head /folder1/test_data.csv
+
+2.2.5. Переместите копию файла в HDFS на новую локацию
+hdfs dfs -cp /folder1/test_data.csv /folder2
+
+
+Блок 2 часть 3.
+
+2.3.1. Изменить replication factor для файла (По умолчанию фактор репликации 3. Сначала его уменьшил, а потом увеличил)
+hdfs dfs -setrep -w 2 /folder1/test_data.csv
+hdfs dfs -setrep -w 3 /folder1/test_data.csv
+
+2.3.2. Как долго занимает время на увеличение / уменьшение числа реплик для файла?
+Уменьшение фактора репликации с 3 до 2 на локально поднятом кластере (Win10+WSL2+DockerDesktop) заняло около 15 сек (файл размером 2 кБ, 1 блок)
+Увеличение фактора репликации с 2 до 3 заняло около 15 сек
+
+2.3.3. Найдите информацию по файлу, блокам и их расположениям с помощью “hdfs fsck”
+hdfs fsck /folder1/test_data.csv -files -blocks -locations
+
+2.3.4. Получите информацию по любому блоку из п.2.3.2 с помощью "hdfs fsck -blockId”. Обратите внимание на Generation Stamp (GS number).
+hdfs fsck -blockId blk_1073741854
