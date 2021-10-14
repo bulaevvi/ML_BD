@@ -2,5 +2,4 @@
 MADE, осень 2021.  
 
 ## Vladimir Bulaev  
-MADE profile: https://data.mail.ru/profile/v.bulaev/
-
+MADE profile: https://data.vk.company/profile/v.bulaev/
