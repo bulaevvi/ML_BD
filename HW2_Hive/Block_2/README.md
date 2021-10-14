@@ -56,4 +56,4 @@ SELECT artist_lastfm FROM
 ORDER BY scrobbles_lastfm DESC LIMIT 5) t;
 ```
 
-Результаты выполнения команд приведены в файле **Results.pdf**
+Результаты выполнения запросов приведены в файле **Results.pdf**
