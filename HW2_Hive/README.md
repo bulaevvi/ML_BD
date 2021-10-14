@@ -31,7 +31,7 @@ https://github.com/tech4242/docker-hadoop-hive-parquet
 #### 1.2.2. Подключение с помощью Hue:  
 
 В составе приведенного выше дистрибутива уже содержится Hue  
-Подключаемся к Hue через веб-интерфейс: `http://localhost:8888`, user=demo password=demo  
+Подключаемся к Hue через веб-интерфейс: `http://localhost:8888`, `user=demo; password=demo`  
 
 Результат приведен на рисунке Pic4.  
 
@@ -66,7 +66,8 @@ opt/hive/bin/beeline -u jdbc:hive2://localhost:10000
 ```  
 Далее вводим SQL-запрос:
 ```
-CREATE TABLE mytable(mbid STRING, artist_mb STRING, artist_lastfm STRING, country_mb STRING, country_lastfm STRING, tags_mb STRING, tags_lastfm STRING, listeners_lastfm INT, scrobbles_lastfm INT, ambiguous_artist STRING)
+CREATE TABLE mytable(mbid STRING, artist_mb STRING, artist_lastfm STRING, country_mb STRING, country_lastfm STRING, 
+tags_mb STRING, tags_lastfm STRING, listeners_lastfm INT, scrobbles_lastfm INT, ambiguous_artist STRING)
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
@@ -81,4 +82,4 @@ LOAD DATA LOCAL INPATH '/artists.csv' INTO TABLE mytable;
 
 ### 2.2. Используя Hive, найти нужные данные  
 
-Команды, использованные для п.2.2, и результаты их выполнения, приведены в папке **Bloc_2**
+Команды, использованные для п.2.2, и результаты их выполнения, приведены в папке **Block_2**
