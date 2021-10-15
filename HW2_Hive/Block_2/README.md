@@ -33,6 +33,8 @@ WHERE tag != '' GROUP BY tag ORDER BY num_of_tag DESC LIMIT 1) t;
 При выполнении этого запроса я руководствовался следующей логикой. Используя прошлый запрос, создадим таблицу `tags_table` с 10 
 самыми популярными тегами. Далее (также с помощью LATERAL VIEW EXPLODE) выводим пользователей, чей тег попадает в ТОП-10, делаем группировку
 (т.к. у каждого пользователя может быть несколько тегов, которые попадают в ТОП-10) и сортируем в порядке убывания популярности  
+
+Вариант 1 (brute force)  
 ```
 SELECT artist_lastfm FROM 
 (WITH tags_table as 
@@ -46,6 +48,33 @@ SELECT artist_lastfm, scrobbles_lastfm FROM
 WHERE tags IN (SELECT tag FROM tags_table)
 GROUP BY artist_lastfm, scrobbles_lastfm
 ORDER BY scrobbles_lastfm DESC LIMIT 10) t;
+```
+
+Вариант 2 (более правильный)  
+После реализации первого варианта пришла мысль о том, что у очень популярных исполнителей может быть несколько тегов, которые попадут в ТОП-10.
+Для проверки этой гипотезы я построил таблицу `result`, в которую занес только тех исполнителей, чьи теги попадают в ТОП-10.
+Далее из этой таблицы `result` для каждого тега выбирается тот исполнитель, у которого больше всего просмотров. Как показывает результат, 
+гипотеза оказалась верной.  
+
+```
+WITH tags_table as 
+    (SELECT tag, COUNT(tag) AS num_of_tag FROM mytable 
+    LATERAL VIEW EXPLODE(SPLIT(LOWER(tags_lastfm), '; ')) tmpTable AS tag
+    WHERE tag != '' GROUP BY tag ORDER BY num_of_tag DESC LIMIT 10),
+result AS
+    (SELECT artist_lastfm, scrobbles_lastfm, tags FROM  
+        (SELECT artist_lastfm, scrobbles_lastfm, tags FROM mytable
+        LATERAL VIEW EXPLODE(SPLIT(LOWER(tags_lastfm), '; ')) tags_lastfm AS tags 
+        WHERE tags != '') a
+    WHERE tags IN (SELECT tag FROM tags_table))
+SELECT artist_lastfm, max_scrobbles, tags
+FROM (SELECT 
+        artist_lastfm,
+        MAX(scrobbles_lastfm) OVER (PARTITION BY tags) max_scrobbles,
+        tags,
+        ROW_NUMBER OVER (PARTITION BY tags ORDER BY scrobbles_lastfm) row_num
+      FROM result) r
+WHERE row_num = 1;
 ```
 
 #### d) Любой другой инсайт на ваше усмотрение: ТОП-5 исполнителей по числу скробблов из Ирландии:
