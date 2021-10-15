@@ -76,9 +76,9 @@ FROM (SELECT
         artist_lastfm,
         MAX(scrobbles_lastfm) OVER (PARTITION BY tags) max_scrobbles,
         tags,
-        ROW_NUMBER OVER (PARTITION BY tags ORDER BY scrobbles_lastfm) row_num
+        ROW_NUMBER() OVER (PARTITION BY tags ORDER BY scrobbles_lastfm DESC) row_num
       FROM result) r
-WHERE row_num = 1;
+WHERE row_num = 1 ORDER BY max_scrobbles DESC;
 ```
 
 #### d) Любой другой инсайт на ваше усмотрение: ТОП-5 исполнителей по числу скробблов из Ирландии:
