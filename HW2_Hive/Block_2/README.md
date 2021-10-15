@@ -2,10 +2,6 @@
 
 #### a) Исполнителя с максимальным числом скробблов:  
 
-Вариант 1 (медленный, навеянный логикой pandas)  
-`SELECT artist_lastfm FROM mytable WHERE scrobbles_lastfm IN (SELECT Max(scrobbles_lastfm) FROM mytable);`  
-
-Вариант 2 (быстрый)  
 ```
 SELECT artist_lastfm FROM
 (SELECT artist_lastfm, scrobbles_lastfm FROM mytable ORDER BY scrobbles_lastfm DESC LIMIT 1) t;
@@ -17,7 +13,7 @@ SELECT artist_lastfm FROM
 количество для произвольного пользователя.  Для выполнения этого запроса используем UDTF-функции из Hive: LATERAL VIEW EXPLODE
 (см. пример из официального руководства https://cwiki.apache.org/confluence/display/Hive/LanguageManual+LateralView).  
 Теги в строке разделяются `; ` - точкой c запятой + пробел, поэтому используется SPLIT по этой комюинации символов.
-Если использовать просто пробел или просто точку с запятой, результат будет неправильный. Кроме того, для унификации
+Если использовать просто пробел или просто точку с запятой, результат может быть некорректный. Кроме того, для унификации
 все символы приводятся к lower case. В таблице есть исполнители с отсутствующими тегами (NaN), поэтому осуществляем проверку `tag != ''`
 Результат группируем по тэгу, сортируем по популярности в порядке убывания и выбираем ТОП-1 - самый популярный тег.
 В дальнейшем данный запрос будет использоваться в качестве базового для отбора десяти самых популярных тегов.  
@@ -81,7 +77,14 @@ FROM (SELECT
 WHERE row_num = 1 ORDER BY max_scrobbles DESC;
 ```
 
-#### d) Любой другой инсайт на ваше усмотрение: ТОП-5 исполнителей по числу скробблов из Ирландии:
+#### d) Любой другой инсайт на ваше усмотрение: 
+
+
+Исполнитель с максимальным числом скробблов (pandas-style):  
+`SELECT artist_lastfm FROM mytable WHERE scrobbles_lastfm IN (SELECT MAX(scrobbles_lastfm) FROM mytable);`  
+
+
+ТОП-5 исполнителей по числу скробблов из Ирландии:  
 
 ```
 SELECT artist_lastfm FROM 
