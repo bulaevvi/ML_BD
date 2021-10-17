@@ -17,6 +17,9 @@ SELECT artist_lastfm FROM
 все символы приводятся к lower case. В таблице есть исполнители с отсутствующими тегами (NaN), поэтому осуществляем проверку `tag != ''`
 Результат группируем по тэгу, сортируем по популярности в порядке убывания и выбираем ТОП-1 - самый популярный тег.
 В дальнейшем данный запрос будет использоваться в качестве базового для отбора десяти самых популярных тегов.  
+
+Поскольку в задании не специфицировано, как считать популярность по тегам, я определял популярность каждого тега по количеству исполнителей 
+с данным тегом. **Другие варианты подсчета приведены в пункте d**.  
 ```
 SELECT tag FROM 
 (SELECT tag, COUNT(tag) AS num_of_tag FROM mytable 
@@ -30,6 +33,8 @@ WHERE tag != '' GROUP BY tag ORDER BY num_of_tag DESC LIMIT 1) t;
 самыми популярными тегами. Далее (также с помощью LATERAL VIEW EXPLODE) выводим пользователей, чей тег попадает в ТОП-10. Т.к. у очень популярных 
 исполнителей может быть несколько тегов, которые попадут в ТОП-10, строим таблицу `result`, в которую занесем всех тех исполнителей, 
 чьи теги попадают в ТОП-10. Далее из этой таблицы для каждого тега выбирается исполнитель с максимальным числом просмотров.   
+Здесь реализован вариант, в котором ТОП-10 самых популярных тегов определяются по количеству исполнителей с данным тегом. 
+**Другие варианты подсчета приведены в пункте d**.  
 
 ```
 WITH tags_table as 
@@ -65,6 +70,57 @@ WHERE row_num = 1 ORDER BY max_scrobbles DESC;
 SELECT artist_lastfm FROM 
 (SELECT artist_lastfm, scrobbles_lastfm FROM mytable WHERE country_lastfm = 'Ireland' 
 ORDER BY scrobbles_lastfm DESC LIMIT 5) t;
+```
+
+Самый популярный тэг на ластфм по сумме слушателей/сумме скробблов (в запросе заменить `listeners_lastfm` на `scrobbles_lastfm`):  
+```
+SELECT tag, SUM(listeners_lastfm) AS res FROM mytable 
+LATERAL VIEW EXPLODE(SPLIT(LOWER(tags_lastfm), '; ')) tmpTable AS tag
+WHERE tag != '' GROUP BY tag ORDER BY res DESC LIMIT 1
+```
+
+Самые популярные исполнители 10 самых популярных тегов ластфм  по сумме слушателей:  
+```
+WITH tags_table as 
+    (SELECT tag, SUM(listeners_lastfm) AS res FROM mytable 
+    LATERAL VIEW EXPLODE(SPLIT(LOWER(tags_lastfm), '; ')) tmpTable AS tag
+    WHERE tag != '' GROUP BY tag ORDER BY res DESC LIMIT 10),
+result AS
+    (SELECT artist_lastfm, scrobbles_lastfm, tags FROM  
+        (SELECT artist_lastfm, scrobbles_lastfm, tags FROM mytable
+        LATERAL VIEW EXPLODE(SPLIT(LOWER(tags_lastfm), '; ')) tags_lastfm AS tags 
+        WHERE tags != '') a
+    WHERE tags IN (SELECT tag FROM tags_table))
+SELECT artist_lastfm, max_scrobbles, tags
+FROM (SELECT 
+        artist_lastfm,
+        MAX(scrobbles_lastfm) OVER (PARTITION BY tags) max_scrobbles,
+        tags,
+        ROW_NUMBER() OVER (PARTITION BY tags ORDER BY scrobbles_lastfm DESC) row_num
+      FROM result) r
+WHERE row_num = 1 ORDER BY max_scrobbles DESC;
+```
+
+Самые популярные исполнители 10 самых популярных тегов ластфм  по сумме скробблов:  
+```
+WITH tags_table as 
+    (SELECT tag, SUM(scrobbles_lastfm) AS res FROM mytable 
+    LATERAL VIEW EXPLODE(SPLIT(LOWER(tags_lastfm), '; ')) tmpTable AS tag
+    WHERE tag != '' GROUP BY tag ORDER BY res DESC LIMIT 10),
+result AS
+    (SELECT artist_lastfm, scrobbles_lastfm, tags FROM  
+        (SELECT artist_lastfm, scrobbles_lastfm, tags FROM mytable
+        LATERAL VIEW EXPLODE(SPLIT(LOWER(tags_lastfm), '; ')) tags_lastfm AS tags 
+        WHERE tags != '') a
+    WHERE tags IN (SELECT tag FROM tags_table))
+SELECT artist_lastfm, max_scrobbles, tags
+FROM (SELECT 
+        artist_lastfm,
+        MAX(scrobbles_lastfm) OVER (PARTITION BY tags) max_scrobbles,
+        tags,
+        ROW_NUMBER() OVER (PARTITION BY tags ORDER BY scrobbles_lastfm DESC) row_num
+      FROM result) r
+WHERE row_num = 1 ORDER BY max_scrobbles DESC;
 ```
 
 Результаты выполнения запросов приведены в файле **Results.pdf**
