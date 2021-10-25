@@ -10,7 +10,7 @@
 https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_california_housing.html  
 
 Для запуска в качестве аргументов командной строки задаются название (с полным путем) обучающего и тестового файла:  
-`C:\MADE\ML_BD\HW\HW3_Scala\data\train.csv C:\MADE\ML_BD\HW\HW3_Scala\data\test.csv`
+`C:\MADE\ML_BD\HW\HW3_Scala\data\train.csv C:\MADE\ML_BD\HW\HW3_Scala\data\test.csv`  
 Обучающие данные делятся на собственно обучающее и валидационное подмножества. Подбор параметров производится на обучающем подмножестве, 
 на валидации происходит оценка обученной линейной регрессии. После этого загружается тестовый датасет и происходит 
 финальная оценка качества обучения. Предсказания модели на тестовом наборе сохраняются в файл `predictions.csv`
