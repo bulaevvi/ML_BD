@@ -44,26 +44,26 @@ class MinHashChild extends MinHashLSH with ChildParams {
 
 
 // Доопределение методов для класса из семинара
-class TestModel (private[made] val randHyperPlanes: Array[Vector]
+class TestModel (private[made] val randomHyperPlanes: Array[Vector]
                 ) extends LSHModel[TestModel] {
 
-  override protected[ml] def hashFunction(elems: linalg.Vector): Array[linalg.Vector] = {
-    val hashValues = randHyperPlanes.map(
-      randHyperPlane => if (elems.dot(randHyperPlane) >= 0) 1 else -1
+  override protected[ml] def hashFunction(elements: linalg.Vector): Array[linalg.Vector] = {
+    val hashes = randomHyperPlanes.map(
+      randomHyperPlane => if (elements.dot(randomHyperPlane) >= 0) 1 else -1
     )
-    hashValues.map(Vectors.dense(_))
+    hashes.map(Vectors.dense(_))
   }
 
-  override protected[ml] def keyDistance(x: linalg.Vector, y: linalg.Vector): Double = {
-    if (Vectors.norm(x, 2) == 0 || Vectors.norm(y, 2) == 0){
-      1.0
+  override protected[ml] def keyDistance(vec1: linalg.Vector, vec2: linalg.Vector): Double = {
+    if (Vectors.norm(vec1, 2) == 0 || Vectors.norm(vec2, 2) == 0) {
+      0.0
     } else {
-      1.0 - x.dot(y) / (Vectors.norm(x, 2) * Vectors.norm(y, 2))
+      vec1.dot(vec2) / (Vectors.norm(vec1, 2) * Vectors.norm(vec2, 2))
     }
   }
 
-  override protected[ml] def hashDistance(x: Seq[linalg.Vector], y: Seq[linalg.Vector]): Double = {
-    x.zip(y).map(item => if (item._1 == item._2) 1 else 0).sum.toDouble / x.size
+  override protected[ml] def hashDistance(a: Seq[linalg.Vector], b: Seq[linalg.Vector]): Double = {
+    a.zip(b).map(item => if (item._1 == item._2) 1 else 0).sum.toDouble / a.size
   }
 }
 
@@ -73,12 +73,14 @@ class Test extends LSH[TestModel] {
 
   override protected[this] def createRawLSHModel(inputDim: Int): TestModel = {
     val rand = new Random(0)
-    val randHyperPlanes: Array[Vector] = {
+    val randomHyperPlanes: Array[Vector] = {
       Array.fill($(numHashTables)) {
-        val randArray = Array.fill(inputDim)({if (rand.nextGaussian() > 0) 1.0 else -1.0})
+        val randArray = Array.fill(inputDim)({
+          if (rand.nextGaussian() > 0) 1.0 else -1.0
+        })
         linalg.Vectors.fromBreeze(breeze.linalg.Vector(randArray))
       }
     }
-    new TestModel(randHyperPlanes)
+    new TestModel(randomHyperPlanes)
   }
 }
