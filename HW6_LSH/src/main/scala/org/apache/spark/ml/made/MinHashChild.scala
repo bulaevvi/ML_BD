@@ -2,9 +2,8 @@ package org.apache.spark.ml.made
 
 import org.apache.spark.ml.feature.{BucketedRandomProjectionLSH, LSH, LSHModel, MinHashLSH, MinHashLSHModel}
 import org.apache.spark.ml.linalg
-import org.apache.spark.ml.linalg.{Matrices, Matrix, Vector, VectorUDT, Vectors}
+import org.apache.spark.ml.linalg.{Vector, Vectors}
 import org.apache.spark.ml.param.{IntParam, ParamValidators, Params}
-import org.apache.spark.mllib.util.MLUtils
 
 import scala.util.Random
 
@@ -45,8 +44,7 @@ class MinHashChild extends MinHashLSH with ChildParams {
 
 
 // Доопределение методов для класса из семинара
-class TestModel (override val uid: String,
-                  private[made] val randHyperPlanes: Array[Vector]
+class TestModel (private[made] val randHyperPlanes: Array[Vector]
                 ) extends LSHModel[TestModel] {
 
   override protected[ml] def hashFunction(elems: linalg.Vector): Array[linalg.Vector] = {
@@ -81,6 +79,6 @@ class Test extends LSH[TestModel] {
         linalg.Vectors.fromBreeze(breeze.linalg.Vector(randArray))
       }
     }
-    new TestModel(uid, randHyperPlanes)
+    new TestModel(randHyperPlanes)
   }
 }
