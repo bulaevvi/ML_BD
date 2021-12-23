@@ -56,9 +56,9 @@ class TestModel (private[made] val randomHyperPlanes: Array[Vector]
 
   override protected[ml] def keyDistance(vec1: linalg.Vector, vec2: linalg.Vector): Double = {
     if (Vectors.norm(vec1, 2) == 0 || Vectors.norm(vec2, 2) == 0) {
-      0.0
+      1.0
     } else {
-      vec1.dot(vec2) / (Vectors.norm(vec1, 2) * Vectors.norm(vec2, 2))
+      1.0 - vec1.dot(vec2) / (Vectors.norm(vec1, 2) * Vectors.norm(vec2, 2))
     }
   }
 
